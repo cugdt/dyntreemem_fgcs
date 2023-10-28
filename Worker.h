@@ -1,5 +1,10 @@
 #pragma once
 
+//TEST LAUNCH
+//evolutionary aspects like crossover and mutation operations are switched off.
+#define TEST 1
+
+#if !TEST
 #include "IEvolutionaryAlg.h"
 #include "ExternalLibs.h"
 
@@ -86,4 +91,5 @@ public:
 	void CleanBinaryTreeInTable(const CDTreeNode* node, int* attrTab, float* valueTab, unsigned int index);
 	int CopyBinaryTreePartToTable(const CDTreeNode* startNode, CDTreeNode* node, int* attrTab, float* valueTab, unsigned int index);
 };
+#endif
 #endif

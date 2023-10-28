@@ -1,6 +1,7 @@
 #include "IEvolutionaryAlg.h"
-#include <utility>
 
+#if !TEST
+#include <utility>
 
 void IEvolutionaryAlg::Run()
 {
@@ -58,3 +59,4 @@ void IEvolutionaryAlg::ApplyTestChangeByCUDA(Individual individual) {
 	if (indivDipolTab != NULL) delete[]indivDipolTab;
 	if (indivDetailedErrTab != NULL) delete[]indivDetailedErrTab;
 }
+#endif

@@ -1,7 +1,7 @@
 #pragma once
-
 #include "CudaWorker.cuh"
 
+#if !TEST
 class IEvolutionaryAlg
 {
 public:
@@ -21,3 +21,4 @@ public:
 	CCudaWorker worker;	
 	#endif
 };
+#endif
