@@ -1,15 +1,59 @@
 # Different GPU in-memory organizations of decision trees (complete, compact and adaptive) - time and memory peformance
+The software hab been extensively tested with CUDA 11.8 under Ubuntu 20 and Windows 10.
 
 ## How to use it ?
+- install the NVIDIA driver
+- install the CUDA toolkit
+- build the solution
+- run (ewentually modify settings)
+<BR/>
 
-**1. Download and install the CUDA Toolkit (tested with ver11.8) for your corresponding platform.**
-
-#### Linux
+**1. Install the NVIDIA driver**
+##### Linux
 - Verify the system has a CUDA-capable GPU.
 ```
 lspci | grep -i nvidia
 ```
 
+- Remove old installation
+```
+sudo apt-get purge nvidia-*
+sudo apt-get update 
+sudo apt upgrade
+sudo apt-get autoremove
+```
+
+- Search for latest version of NVIDIA driver
+```
+apt search nvidia-driver
+```
+
+- Install and handle problems <br/>  
+If you want to install a specific driver version, use this command:
+```
+sudo apt install nvidia-driver-<version>
+```
+Alternatively, if you are satisfied with the recommended version, use this command:
+```
+sudo ubuntu-drivers autoinstall
+```
+
+- Reboot and check for the installation
+```
+nvidia-smi
+```
+
+You can install the NVIDIA driver also by GUI using "Software & Updates" application windows
+
+More about NVIDIA driver installation, please refer to the 
+https://docs.nvidia.com/cuda/cuda-installation-guide-linux/
+
+##### Windows
+Windows Update automatically install and update NVIDIA Driver. <BR/><BR/>
+
+**2. Install the CUDA Toolkit.**
+
+##### Linux
 - Verify the system is running a supported version of Linux.
 ```
 uname -m && cat /etc/*release
@@ -30,36 +74,61 @@ uname -r
 ```
 
 - Download the NVIDIA CUDA Toolkit.
-  
 The NVIDIA CUDA Toolkit is available at https://developer.nvidia.com/cuda-downloads.
 Choose the platform you are using and download the NVIDIA CUDA Toolkit.
-To calculate the MD5 checksum of the downloaded file, run the following:
+
+- Install and handle problems.
 ```
-md5sum <file>
+sudo apt update
+sudo apt install cuda-toolkit-<version>
 ```
 
-- Handle conflicting installation methods.
+- Set up the development environment by modifying the PATH and LD_LIBRARY_PATH variables:
+```
+export PATH=/usr/local/cuda-11.8/bin${PATH:+:${PATH}}
+export LD_LIBRARY_PATH=/usr/local/cuda-11.8/lib64\
+                         ${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+```
 
-More about system requirements and installation instructions of cuda toolkit, please refer to the Linux Installation Guide:
+- Test the CUDA toolkit
+```
+nvcc -V
+```
+
+More about system requirements and installation instructions of CUDA toolkit, please refer to the Linux Installation Guide:
 https://docs.nvidia.com/cuda/cuda-installation-guide-linux/
 
 
 #### Windows
-...
+- Download the NVIDIA CUDA Toolkit.
+The NVIDIA CUDA Toolkit is available at https://developer.nvidia.com/cuda-downloads.
+Choose the platform you are using and download the NVIDIA CUDA Toolkit.
+- install
+- Windows exe CUDA Toolkit installation method automatically adds CUDA Toolkit specific Environment variables.
 
 More about system requirements and installation instructions of cuda toolkit, please refer to the Windows Installation Guide:
-https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html
+https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html<BR/><BR/>
 
-**2. compile the code**
-#### Linux
-#### Windows
+**3. Build the software**
+##### Linux
+```
+make
+```
 
-**3. run**
-#### Linux
-#### Windows
+##### Windows
+<BR/><BR/>
+
+**4. Run the software**
+##### Linux
+```
+./mlpdt
+```
+
+##### Windows
+<BR/><BR/>
+
 
 ## Basic class description and main options
-
 - CudaWorker - CUDA worker is used to calculate fitness (+ dipoles) after successful mutation/crossover; it includes two kernel functions (dev_CalcPopClassDistAndDipolAtLeafs_Pre_V2b, dev_CalcPopDetailedErrAndClassDistAndDipol_Post_V2b - and several their variations) that calculate the arrangements of samples, errors and dipoles; kernels are called from the CalcIndivDetailedErrAndClassDistAndDipol_V2b method (or one of its variations) where also the DT is copied to GPU and, finally, the results are received by the CPU; the in-memory DT representation is chosen in Worker.h file using ADDAPTIVE_TREE_REP and FULL_BINARY_TREE_REP defines;
 - Worker - a base class for external computing resources (CUDA, SPARK, etc.) to outsource the time-demanding jobs
 - IEvolutionaryAlg - evolutionary loop
