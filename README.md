@@ -118,13 +118,15 @@ make
 
 ##### Windows
 - Create a new 'Hello World' CUDA project (a CUDA template project).
-  * Go to File --> New --> Project…
-  * NVIDIA -> CUDA 11.8 -> CUDA 11.8 Runtime
-  * delete file "" from the project
-  * impor
-  * if needed retarget
-  * ...
-- To compile this program, click on Build --> Build Solution
+  * Go to 'File -> New -> Project…'
+  * Choose 'NVIDIA -> CUDA 11.8 -> CUDA 11.8 Runtime'
+  * Delete file "kernel.cu" from the project<BR/>
+    Right-click the project name in Solution Explorer, select the file and click 'Remove'
+  * Import the source code from the repository to the project<BR/>
+    Right-click the project name in Solution Explorer, select 'Add -> Existing Item...', choose all files and click 'Add'.
+  *  If needed, choose the correct CUDA version:<BR/>
+     Right-click the project name in Solution Explorer, choose 'Build Dependencies' then 'Build Customizations...'
+- To compile this program, click on 'Build -> Build Solution'
 <BR/><BR/>
 
 **4. Run the software**
@@ -134,18 +136,23 @@ make
 ```
 
 ##### Windows
-Running using the Debug configuration via Debug --> Start Without Debugging should yield the following prompt:
+Running using the Debug configuration via 'Debug -> Start Without Debugging'.
 <BR/><BR/>
 
 **5. Analyse the results, eventually modify settings**
-The TEST version of the software brings ...
+- The basic version of the software gives the times results for randomly generated decision trees for the chosen in-memory representation.<BR/>
+<img src="/fig/complete_times.jpg" width="200"><BR/>
+<img src="/fig/compact_times.jpg" width="200"><BR/>
+<img src="/fig/adaptive_times.jpg" width="200"><BR/>
 
-##### Windows
-<BR/><BR/>
+- The basic settings:
+  * N_THREADS - number of threads
+  * N_BLOCKS - number of blocks
+  * DATASET_TRANING - traning data
+  * TEST - test or evo launch
+  * DS_REAL - float/double precision
+  * FULL_BINARY_TREE_REP - complete/compact representation
+  * ADDAPTIVE_TREE_REP - adaptive representation
+  * ADAPTIVE_TREE_REP_SWITCHING_POINT - switching point in the adaptive representation
+  * N_DIPOL_OBJECTS - number of dipole samples per node
 
-
-## Basic class description and main options
-- CudaWorker - CUDA worker is used to calculate fitness (+ dipoles) after successful mutation/crossover; it includes two kernel functions (dev_CalcPopClassDistAndDipolAtLeafs_Pre_V2b, dev_CalcPopDetailedErrAndClassDistAndDipol_Post_V2b - and several their variations) that calculate the arrangements of samples, errors and dipoles; kernels are called from the CalcIndivDetailedErrAndClassDistAndDipol_V2b method (or one of its variations) where also the DT is copied to GPU and, finally, the results are received by the CPU; the in-memory DT representation is chosen in Worker.h file using ADDAPTIVE_TREE_REP and FULL_BINARY_TREE_REP defines;
-- Worker - a base class for external computing resources (CUDA, SPARK, etc.) to outsource the time-demanding jobs
-- IEvolutionaryAlg - evolutionary loop
-- main.cpp - start file
