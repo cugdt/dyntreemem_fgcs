@@ -74,8 +74,8 @@ uname -r
 ```
 
 - Download the NVIDIA CUDA Toolkit.
-The NVIDIA CUDA Toolkit is available at https://developer.nvidia.com/cuda-downloads.
-Choose the platform you are using and download the NVIDIA CUDA Toolkit.
+Choose the platform you are using and download the NVIDIA CUDA Toolkit. It is available at https://developer.nvidia.com/cuda-downloads.
+
 
 - Install and handle problems.
 ```
@@ -86,8 +86,7 @@ sudo apt install cuda-toolkit-<version>
 - Set up the development environment by modifying the PATH and LD_LIBRARY_PATH variables:
 ```
 export PATH=/usr/local/cuda-11.8/bin${PATH:+:${PATH}}
-export LD_LIBRARY_PATH=/usr/local/cuda-11.8/lib64\
-                         ${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
+export LD_LIBRARY_PATH=/usr/local/cuda-11.8/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 ```
 
 - Test the CUDA toolkit
@@ -101,10 +100,9 @@ https://docs.nvidia.com/cuda/cuda-installation-guide-linux/
 
 #### Windows
 - Download the NVIDIA CUDA Toolkit.
-The NVIDIA CUDA Toolkit is available at https://developer.nvidia.com/cuda-downloads.
-Choose the platform you are using and download the NVIDIA CUDA Toolkit.
-- install
-- Windows exe CUDA Toolkit installation method automatically adds CUDA Toolkit specific Environment variables.
+Choose the platform you are using and download the NVIDIA CUDA Toolkit. It is available at https://developer.nvidia.com/cuda-downloads.
+- Install the CUDA toolkit.
+- Windows exe CUDA Toolkit installation method automatically adds CUDA Toolkit specific environment variables.
 
 More about system requirements and installation instructions of cuda toolkit, please refer to the Windows Installation Guide:
 https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html<BR/><BR/>
@@ -112,6 +110,7 @@ https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.htm
 **3. Build the software**
 ##### Linux
 ```
+make clean
 make
 ```
 
@@ -123,6 +122,9 @@ make
 ```
 ./mlpdt
 ```
+
+**5. Analyse results**
+The TEST version of the software brings ...
 
 ##### Windows
 <BR/><BR/>
