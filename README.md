@@ -1,11 +1,12 @@
 # Different GPU in-memory organizations of decision trees (complete, compact and adaptive) - time and memory peformance
-The software hab been extensively tested with CUDA 11.8 under Ubuntu 20 and Windows 10.
+The software hab been extensively tested with CUDA 11.8 under Ubuntu 20 and GCC 9.4 as well as under Windows 10 using MS Visual Studio 2017 and 2019.
 
 ## How to use it ?
 - install the NVIDIA driver
 - install the CUDA toolkit
 - build the solution
-- run (ewentually modify settings)
+- run the solution
+- analyse the results, eventually modify settings
 <BR/>
 
 **1. Install the NVIDIA driver**
@@ -105,7 +106,8 @@ Choose the platform you are using and download the NVIDIA CUDA Toolkit. It is av
 - Windows exe CUDA Toolkit installation method automatically adds CUDA Toolkit specific environment variables.
 
 More about system requirements and installation instructions of cuda toolkit, please refer to the Windows Installation Guide:
-https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html<BR/><BR/>
+https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html
+<BR/><BR/>
 
 **3. Build the software**
 ##### Linux
@@ -115,6 +117,11 @@ make
 ```
 
 ##### Windows
+- Create a new 'Hello World' CUDA project as a CUDA template project.
+  * Go to File --> New --> Project…
+  * NVIDIA -> CUDA 11.8 -> CUDA 11.8 Runtime
+  * ...
+- To compile this program, click on Build --> Build Solution
 <BR/><BR/>
 
 **4. Run the software**
@@ -123,7 +130,11 @@ make
 ./mlpdt
 ```
 
-**5. Analyse results**
+##### Windows
+Running using the Debug configuration via Debug --> Start Without Debugging should yield the following prompt:
+<BR/><BR/>
+
+**5. Analyse the results, eventually modify settings**
 The TEST version of the software brings ...
 
 ##### Windows
