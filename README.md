@@ -117,9 +117,12 @@ make
 ```
 
 ##### Windows
-- Create a new 'Hello World' CUDA project as a CUDA template project.
+- Create a new 'Hello World' CUDA project (a CUDA template project).
   * Go to File --> New --> Project…
   * NVIDIA -> CUDA 11.8 -> CUDA 11.8 Runtime
+  * delete file "" from the project
+  * impor
+  * if needed retarget
   * ...
 - To compile this program, click on Build --> Build Solution
 <BR/><BR/>
