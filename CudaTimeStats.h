@@ -5,8 +5,10 @@
 #include <time.h>
 #endif
 
+//time and memory results/peformance
 class CCudaTimeStats{
 private:
+	//two kinds of time measurements under linux
 	#ifdef __linux__
 		#if CLOCK_GETTIME
 		struct timespec wholeTimeBegin, wholeTimeEnd;
@@ -216,29 +218,29 @@ private:
 public:
 	CCudaTimeStats(void);
 	~CCudaTimeStats(void);
-	void ClearAllStats();
-	void ClearCurrStats();
-	void MoveTimeStats_V1a();
-	void MoveTimeStats_V1b();
-	void MoveTimeStats_V2a();
-	void MoveTimeStats_V2b();
-	void MoveTimeStats_DetailedV1a();
-	void MoveTimeStats_DetailedV1b();
-	void MoveTimeStats_DetailedV2a();
-	void MoveTimeStats_DetailedV2b();
-	void MoveTimeStats_DetailedIndivV2b();
-	void ShowTimeStatsLegend();
-	void ShowTimeStats_V1a();
-	void ShowTimeStats_V1b();
-	void ShowTimeStats_V2a();
-	void ShowTimeStats_V2b();	
-	void ShowTimeStats_DetailedV1a();
-	void ShowTimeStats_DetailedV1b();
-	void ShowTimeStats_DetailedV2a();
-	void ShowTimeStats_DetailedV2b();
-	void ShowTimeStats_DetailedIndivV2b();
-	void ShowTimeStats_Seq();
-	void ShowNodeStats_MLRCalc();
+	void ClearAllStats();		//clean
+	void ClearCurrStats();		//clean
+	void MoveTimeStats_V1a();	//move before new run
+	void MoveTimeStats_V1b();	//move before new run
+	void MoveTimeStats_V2a();	//move before new run
+	void MoveTimeStats_V2b();	//move before new run
+	void MoveTimeStats_DetailedV1a(); //move before new run
+	void MoveTimeStats_DetailedV1b(); //move before new run
+	void MoveTimeStats_DetailedV2a(); //move before new run
+	void MoveTimeStats_DetailedV2b(); //move before new run
+	void MoveTimeStats_DetailedIndivV2b(); //move before new run
+	void ShowTimeStatsLegend(); //show legend
+	void ShowTimeStats_V1a();	//show statistics
+	void ShowTimeStats_V1b();	//show statistics
+	void ShowTimeStats_V2a();	//show statistics
+	void ShowTimeStats_V2b();	//show statistics
+	void ShowTimeStats_DetailedV1a();		//show details
+	void ShowTimeStats_DetailedV1b();		//show details
+	void ShowTimeStats_DetailedV2a();		//show details
+	void ShowTimeStats_DetailedV2b();		//show details
+	void ShowTimeStats_DetailedIndivV2b();	//show details
+	void ShowTimeStats_Seq();				//show details
+	void ShowNodeStats_MLRCalc();			//show details
 
 	double getWholeTime(){ return wholeTime; }
 	double getCalcTime(){ return calcTime; }

@@ -13,6 +13,7 @@
 #include <stdio.h>
 
 CCudaWorker::CCudaWorker(){
+	//dataset related
 	dev_datasetTab = NULL;	
 	nObjects = 0;
 	nAttrs = 0;
@@ -21,6 +22,7 @@ CCudaWorker::CCudaWorker(){
 	dev_predictionTab = NULL;
 	timeStats = new CCudaTimeStats();	
 
+	//population related
 	#if !FULL_BINARY_TREE_REP	
 	dev_populationNodePosTab		= NULL;			
 	dev_populationLeftNodePosTab	= NULL;
@@ -96,15 +98,18 @@ CCudaWorker::~CCudaWorker(){
 //////////////////////////////////////////////////////////////////////////////////
 
 #if FULL_BINARY_TREE_REP
+//kernel pre complete
 __global__ void dev_CalcPopClassDistAndDipolAtLeafs_Pre_V2b( DS_REAL *datasetTab, unsigned int *classTab, int nObjects, int nAttrs, int nIndividuals,
 															 int *populationAttrNumTab, float *populationValueTab,  int *individualPosInTab, int populationTabSize, int nClasses,
 															 unsigned int *populationClassDistTab_ScatOverBlocks, unsigned int *populationDipolTab_ScatOverBlocks );
 #else
+//kernel pre compact
 __global__ void dev_CalcPopClassDistAndDipolAtLeafs_Pre_V2b( DS_REAL *datasetTab, unsigned int *classTab, int nObjects, int nAttrs, int nIndividuals,
 															 int *populationAttrNumTab, float *populationValueTab,  int *individualPosInTab, int populationTabSize, int nClasses,
 															 int *populationLeftNodePosTab, int *populationRightNodePosTab, int *populationParentNodePosTab,
 															 unsigned int *populationClassDistTab_ScatOverBlocks, unsigned int *populationDipolTab_ScatOverBlocks );
 #if ADDAPTIVE_TREE_REP
+//kernel pre for adaptive
 __global__ void dev_CalcPopClassDistAndDipolAtLeafs_Pre_FULL_BINARY_TREE_REP_V2b( DS_REAL *datasetTab, unsigned int *classTab, int nObjects, int nAttrs, int nIndividuals,
 															 int *populationAttrNumTab, float *populationValueTab,  int *individualPosInTab, int populationTabSize, int nClasses,
 															 unsigned int *populationClassDistTab_ScatOverBlocks, unsigned int *populationDipolTab_ScatOverBlocks );
@@ -112,15 +117,18 @@ __global__ void dev_CalcPopClassDistAndDipolAtLeafs_Pre_FULL_BINARY_TREE_REP_V2b
 #endif
 
 #if FULL_BINARY_TREE_REP
+//kernel pre for complete - part version
 __global__ void dev_CalcPopPartClassDistAndDipolAtLeafs_Pre_V2b( DS_REAL *datasetTab, unsigned int *classTab, int nObjects, int nAttrs, int nIndividuals,
 																 int *populationAttrNumTab, float *populationValueTab,  int *individualPosInTab, int populationTabSize, int nClasses,
 																 unsigned int *populationClassDistTab_ScatOverBlocks, unsigned int *populationDipolTab_ScatOverBlocks );
 #else
+//kernel pre for compact - part version
 __global__ void dev_CalcPopPartClassDistAndDipolAtLeafs_Pre_V2b( DS_REAL *datasetTab, unsigned int *classTab, int nObjects, int nAttrs, int nIndividuals,
 																 int *populationAttrNumTab, float *populationValueTab,  int *individualPosInTab, int populationTabSize, int nClasses,
 																 int *populationLeftNodePosTab, int *populationRightNodePosTab, int *populationParentNodePosTab,
 																 unsigned int *populationClassDistTab_ScatOverBlocks, unsigned int *populationDipolTab_ScatOverBlocks );
 #if ADDAPTIVE_TREE_REP
+//kernel pre for adaptive - part version
 __global__ void dev_CalcPopPartClassDistAndDipolAtLeafs_Pre_FULL_BINARY_TREE_REP_V2b( DS_REAL *datasetTab, unsigned int *classTab, int nObjects, int nAttrs, int nIndividuals,
 																 int *populationAttrNumTab, float *populationValueTab,  int *individualPosInTab, int populationTabSize, int nClasses,
 																 unsigned int *populationClassDistTab_ScatOverBlocks, unsigned int *populationDipolTab_ScatOverBlocks );
@@ -128,18 +136,21 @@ __global__ void dev_CalcPopPartClassDistAndDipolAtLeafs_Pre_FULL_BINARY_TREE_REP
 #endif
 
 #if FULL_BINARY_TREE_REP
+//kernel post for complete - 2 class version
 __global__ void dev_CalcPopDetailedErrAndClassDistAndDipol_Post_V2b_2Classes( int *individualPosInTab, int populationTabSize, int nClasses,
 															 		    unsigned int *populationClassDistTab_ScatOverBlocks, unsigned int *populationDipolTab_ScatOverBlocks,
 																	    unsigned int *populationDetailedErrTab, unsigned int *populationDetailedClassDistTab, unsigned int *populationDipolTab );
-
+//kernel post for complete
 __global__ void dev_CalcPopDetailedErrAndClassDistAndDipol_Post_V2b( int *individualPosInTab, int populationTabSize, int nClasses,
 															 		 unsigned int *populationClassDistTab_ScatOverBlocks, unsigned int *populationDipolTab_ScatOverBlocks,
 																	 unsigned int *populationDetailedErrTab, unsigned int *populationDetailedClassDistTab, unsigned int *populationDipolTab );
 #else
+//kernel post for compact
 __global__ void dev_CalcPopDetailedErrAndClassDistAndDipol_Post_V2b( int *individualPosInTab, int populationTabSize, int nClasses, int *populationParentNodePosTab,
 															 		 unsigned int *populationClassDistTab_ScatOverBlocks, unsigned int *populationDipolTab_ScatOverBlocks,
 																	 unsigned int *populationDetailedErrTab, unsigned int *populationDetailedClassDistTab, unsigned int *populationDipolTab );
 #if ADDAPTIVE_TREE_REP
+//kernel post for adaptive
 __global__ void dev_CalcPopDetailedErrAndClassDistAndDipol_Post_FULL_BINARY_TREE_REP_V2b( int *individualPosInTab, int populationTabSize, int nClasses,
 															 		 unsigned int *populationClassDistTab_ScatOverBlocks, unsigned int *populationDipolTab_ScatOverBlocks,
 																	 unsigned int *populationDetailedErrTab, unsigned int *populationDetailedClassDistTab, unsigned int *populationDipolTab );
@@ -200,6 +211,7 @@ void CCudaWorker::InitSimulation(const DataSet *dataset, int nIndividuals, eMode
 	currNTreeNodesLimit = INIT_N_TREE_NODES_LIMIT;
 	#endif
 
+	//allocate memory at GPU
 	#if CUDA_EA_ON > 1
 		int nGPUs = 0;
 		cudaGetDeviceCount( &nGPUs );
@@ -522,6 +534,7 @@ void CCudaWorker::AllocateMemoryPopAndResultsAtGPU(int nIndividuals, int maxTree
 
 	maxPopulationTabSize = maxTreeTabSize * nIndividuals;
 	
+	//allocate memory for the population
 	cudaStatus = cudaMalloc((void**)&dev_populationAttrNumTab, maxPopulationTabSize * sizeof(int));
 	CheckCUDAStatus( cudaStatus, "InitSimulation - cudaMalloc failed - 1 !!!\n" );
 
@@ -544,18 +557,23 @@ void CCudaWorker::AllocateMemoryPopAndResultsAtGPU(int nIndividuals, int maxTree
 		cudaStatus = cudaMalloc((void**)&dev_populationValueTab, maxPopulationTabSize * sizeof(float));
 		CheckCUDAStatus(cudaStatus, "InitSimulation - cudaMalloc failed - CT - 7 !!!\n");
 
+		//allocate memory for the results
 		cudaStatus = cudaMalloc((void**)&dev_populationClassDistTab_ScatOverBlocks, nBlocks * maxPopulationTabSize * nClasses * sizeof(unsigned int));
 		CheckCUDAStatus(cudaStatus, "InitSimulation - cudaMalloc failed - CT - 8 !!!\n");
 
+		//allocate memory for the results
 		cudaStatus = cudaMalloc((void**)&dev_populationDetailedClassDistTab, maxPopulationTabSize * nClasses * sizeof(unsigned int));
 		CheckCUDAStatus(cudaStatus, "InitSimulation - cudaMalloc failed - CT - 9 !!!\n");
 
+		//allocate memory for the results
 		cudaStatus = cudaMalloc((void**)&dev_populationDetailedErrTab, maxPopulationTabSize * N_INFO_CORR_ERR * sizeof(unsigned int));
 		CheckCUDAStatus(cudaStatus, "InitSimulation - cudaMalloc failed - CT - 10 !!!\n");
 
+		//allocate memory for the results
 		cudaStatus = cudaMalloc((void**)&dev_populationDipolTab_ScatOverBlocks, nBlocks * maxPopulationTabSize * nClasses * (N_DIPOL_OBJECTS + 1) * sizeof(unsigned int));
 		CheckCUDAStatus(cudaStatus, "InitSimulation - cudaMalloc failed - CT - 11 !!!\n");
 		
+		//allocate memory for the results
 		cudaStatus = cudaMalloc((void**)&dev_populationDipolTab, maxPopulationTabSize * nClasses * N_DIPOL_OBJECTS * sizeof(unsigned int));
 		CheckCUDAStatus(cudaStatus, "InitSimulation - cudaMalloc failed - CT - 12 !!!\n");		
 	}	
@@ -563,15 +581,19 @@ void CCudaWorker::AllocateMemoryPopAndResultsAtGPU(int nIndividuals, int maxTree
 		cudaStatus = cudaMalloc((void**)&dev_RT_populationValueTab, maxPopulationTabSize * sizeof(RT_TREE_TRESHOLD_REAL));
 		CheckCUDAStatus(cudaStatus, "InitSimulation - cudaMalloc failed - RT/MT - 13 !!!\n");
 
+		//allocate memory for the results
 		cudaStatus = cudaMalloc((void**)&dev_RT_populationErrTab_ScatOverBlocks, nBlocks * maxPopulationTabSize * sizeof(RT_REAL));
 		CheckCUDAStatus(cudaStatus, "InitSimulation - cudaMalloc failed - RT/MT - 14 !!!\n");
 
+		//allocate memory for the results
 		cudaStatus = cudaMalloc((void**)&dev_RT_populationDetailedErrTab, maxPopulationTabSize * sizeof(RT_REAL));
 		CheckCUDAStatus(cudaStatus, "InitSimulation - cudaMalloc failed - RT/MT - 15 !!!\n");
 
+		//allocate memory for the results
 		cudaStatus = cudaMalloc((void**)&dev_populationDipolTab_ScatOverBlocks, nBlocks * maxPopulationTabSize * MT_N_DIPOL_TMP * sizeof(unsigned int));
 		CheckCUDAStatus(cudaStatus, "InitSimulation - cudaMalloc failed - RT/MT - 16 !!!\n");
 
+		//allocate memory for the results
 		cudaStatus = cudaMalloc((void**)&dev_populationDipolTab, maxPopulationTabSize * (RT_N_DIPOLS * 2) * sizeof(unsigned int));
 		CheckCUDAStatus(cudaStatus, "InitSimulation - cudaMalloc failed - RT/MT - 17 !!!\n");
 
@@ -816,6 +838,7 @@ unsigned int* CCudaWorker::CalcIndivDetailedErrAndClassDistAndDipol_V2b( CDTreeN
 
 	//timeStats -> DataReorganizationTimeBegin();			//time stats
 	//////////////////////////////////////////////////////////////////////////	
+	//alloc population
 	int nIndividuals = 1;
 	int *individualPosInTab = new int[ nIndividuals ];
 	int populationTabSize = 0;	
@@ -851,6 +874,7 @@ unsigned int* CCudaWorker::CalcIndivDetailedErrAndClassDistAndDipol_V2b( CDTreeN
 	//////////////////////////////////////////////////////////////////////////
 
 	//////////////////////////////////////////////////////////////////////////	
+	//pack population
 	for( int i = 0; i < nIndividuals; i++ ){
 		int shift = individualPosInTab[i];
 		#if FULL_BINARY_TREE_REP
@@ -874,9 +898,10 @@ unsigned int* CCudaWorker::CalcIndivDetailedErrAndClassDistAndDipol_V2b( CDTreeN
 
 	//////////////////////////////////////////////////////////////////////////
 	#if !CUDA_MALLOC_OPTIM_1
-	//allocate memory at device for population		
+	//allocate memory at device for population
 	//timeStats -> MemoryAllocDeallocTimeBegin();			//time stats
 
+	//send population
 	cudaStatus = cudaMalloc( (void**)&dev_populationAttrNumTab, populationTabSize * sizeof( int ) );
 	if( cudaStatus != cudaSuccess ){
 		printf( "CalcIndivDetailedErrAndClassDistAndDipol_V2b - cudaMalloc failed - 1 !!!\n" );
@@ -1006,6 +1031,7 @@ unsigned int* CCudaWorker::CalcIndivDetailedErrAndClassDistAndDipol_V2b( CDTreeN
 	
 
 	//////////////////////////////////////////////////////////////////////////	
+	//kernel fitness pre
 	//timeStats -> CalcTimeBegin();						//time stats	
 	#if FULL_BINARY_TREE_REP
 	dev_CalcPopClassDistAndDipolAtLeafs_Pre_V2b<<< nBlocks, nThreads >>>( dev_datasetTab, dev_classTab, nObjects, nAttrs, nIndividuals, 													//datset
@@ -1038,6 +1064,7 @@ unsigned int* CCudaWorker::CalcIndivDetailedErrAndClassDistAndDipol_V2b( CDTreeN
         exit( EXIT_FAILURE );        
     }
 	
+	//kernel fitness post
 	#if FULL_BINARY_TREE_REP
 	dev_CalcPopDetailedErrAndClassDistAndDipol_Post_V2b<<< nIndividuals, nBlocks >>>( dev_individualPosInTab, populationTabSize, nClasses,
 								      												   dev_populationClassDistTab_ScatOverBlocks, dev_populationDipolTab_ScatOverBlocks,
@@ -1066,6 +1093,7 @@ unsigned int* CCudaWorker::CalcIndivDetailedErrAndClassDistAndDipol_V2b( CDTreeN
 	//////////////////////////////////////////////////////////////////////////
 
 	//////////////////////////////////////////////////////////////////////////	
+	//transfer results from the GPU to the CPU
 	//timeStats -> DataTransferFromGPUTimeBegin();		//time stats
 	unsigned int* populationDetailedErrTab = new unsigned int[ populationTabSize * N_INFO_CORR_ERR ];
 	cudaStatus = cudaMemcpy( populationDetailedErrTab, dev_populationDetailedErrTab, populationTabSize * N_INFO_CORR_ERR * sizeof( unsigned int ), cudaMemcpyDeviceToHost );
@@ -1097,6 +1125,7 @@ unsigned int* CCudaWorker::CalcIndivDetailedErrAndClassDistAndDipol_V2b( CDTreeN
 	#endif
 	//////////////////////////////////////////////////////////////////////////
 
+	//cleaning
 	//////////////////////////////////////////////////////////////////////////	
 	#if !CUDA_MALLOC_OPTIM_1
 	timeStats -> MemoryAllocDeallocTimeBegin();			//time stats	
@@ -1131,6 +1160,7 @@ unsigned int* CCudaWorker::CalcIndivPartDetailedErrAndClassDistAndDipol_V2b( CDT
 
 	//timeStats -> DataReorganizationTimeBegin();			//time stats
 	//////////////////////////////////////////////////////////////////////////
+	//alloc population
 	int nIndividuals = 1;
 	int *individualPosInTab = new int[ nIndividuals ];
 	int populationTabSize = 0;	
@@ -1166,6 +1196,7 @@ unsigned int* CCudaWorker::CalcIndivPartDetailedErrAndClassDistAndDipol_V2b( CDT
 	//////////////////////////////////////////////////////////////////////////
 
 	//////////////////////////////////////////////////////////////////////////	
+	//pack population
 	for( int i = 0; i < nIndividuals; i++ )
 		#if FULL_BINARY_TREE_REP
 		startNodeTabIndex = CopyBinaryTreePartToTable( startNode, root, populationAttrNumTab + individualPosInTab[ i ], populationValueTab + individualPosInTab[ i ], 0 );				
@@ -1174,9 +1205,11 @@ unsigned int* CCudaWorker::CalcIndivPartDetailedErrAndClassDistAndDipol_V2b( CDT
 	//////////////////////////////////////////////////////////////////////////
 	
 	//////////////////////////////////////////////////////////////////////////
-	#if !CUDA_MALLOC_OPTIM_1	
-	timeStats->MemoryAllocDeallocTimeBegin();			//time stats
+	#if !CUDA_MALLOC_OPTIM_1
+	//allocate memory at device for population
+	//timeStats->MemoryAllocDeallocTimeBegin();			//time stats
 
+	//send population
 	cudaStatus = cudaMalloc( (void**)&dev_populationAttrNumTab, populationTabSize * sizeof( int ) );
 	if( cudaStatus != cudaSuccess ){
 		printf( "CalcIndivPartDetailedErrAndClassDistAndDipol_V2b - cudaMalloc failed - 1 !!!\n" );
@@ -1246,6 +1279,7 @@ unsigned int* CCudaWorker::CalcIndivPartDetailedErrAndClassDistAndDipol_V2b( CDT
 	//////////////////////////////////////////////////////////////////////////
 
 	//////////////////////////////////////////////////////////////////////////	
+	//transfer population data to device
 	//timeStats -> DataTransferToGPUTimeBegin();			//time stats
 	cudaStatus = cudaMemcpy( dev_populationAttrNumTab, populationAttrNumTab, populationTabSize * sizeof( int ), cudaMemcpyHostToDevice );
 	if( cudaStatus != cudaSuccess ){
@@ -1300,6 +1334,7 @@ unsigned int* CCudaWorker::CalcIndivPartDetailedErrAndClassDistAndDipol_V2b( CDT
 	//////////////////////////////////////////////////////////////////////////
 
 	//////////////////////////////////////////////////////////////////////////
+	//kernel fitness pre
 	//timeStats -> CalcTimeBegin();						//time stats	
 	#if FULL_BINARY_TREE_REP
 	dev_CalcPopPartClassDistAndDipolAtLeafs_Pre_V2b<<< nBlocks, nThreads >>>( dev_datasetTab, dev_classTab, nObjects, nAttrs, nIndividuals, 											//datset
@@ -1327,6 +1362,7 @@ unsigned int* CCudaWorker::CalcIndivPartDetailedErrAndClassDistAndDipol_V2b( CDT
         exit( EXIT_FAILURE );
     }
 	
+	//kernel fitness post
 	#if FULL_BINARY_TREE_REP
 	dev_CalcPopDetailedErrAndClassDistAndDipol_Post_V2b<<< nIndividuals, nBlocks >>>( dev_individualPosInTab, populationTabSize, nClasses,
 								      												   dev_populationClassDistTab_ScatOverBlocks, dev_populationDipolTab_ScatOverBlocks,
@@ -1354,6 +1390,7 @@ unsigned int* CCudaWorker::CalcIndivPartDetailedErrAndClassDistAndDipol_V2b( CDT
 	//////////////////////////////////////////////////////////////////////////
 
 	//////////////////////////////////////////////////////////////////////////	
+	//transfer results from the GPU to the CPU
 	//timeStats -> DataTransferFromGPUTimeBegin();		//time stats
 	unsigned int* populationDetailedErrTab = new unsigned int[ populationTabSize * N_INFO_CORR_ERR ];	
 	cudaStatus = cudaMemcpy( populationDetailedErrTab, dev_populationDetailedErrTab, populationTabSize * N_INFO_CORR_ERR * sizeof( unsigned int ), cudaMemcpyDeviceToHost );
@@ -1384,6 +1421,7 @@ unsigned int* CCudaWorker::CalcIndivPartDetailedErrAndClassDistAndDipol_V2b( CDT
 	resultDeviceHostSendBytesSum += populationTabSize * ( (N_INFO_CORR_ERR * sizeof(unsigned int) + nClasses * sizeof(unsigned int) + nClasses * N_DIPOL_OBJECTS * sizeof(unsigned int) ) );
 	#endif
 		
+	//cleaning
 	#if !CUDA_MALLOC_OPTIM_1
 	//timeStats->MemoryAllocDeallocTimeBegin();			//time stats
 	cudaFree( dev_populationAttrNumTab );	
@@ -1408,15 +1446,18 @@ unsigned int* CCudaWorker::CalcIndivPartDetailedErrAndClassDistAndDipol_V2b( CDT
 	return populationDetailedErrTab;
 }
 
+//fill decision tree by the results obtained by an external device, e.g. GPU: errors, class distribution, dipol objects
 int CCudaWorker::FillDTreeByExternalResults( CDTreeNode *node, unsigned int *indivDetailedErrTab, unsigned int *indivDetailedClassDistTab, unsigned int* indivDipolTab, unsigned int index, const IDataSet *pDS ){
 	unsigned int errTabIndex = index * N_INFO_CORR_ERR;
 	unsigned int classTabIndex = index * nClasses;
 	unsigned int dipolTabIndex = index * nClasses * N_DIPOL_OBJECTS;
-		
+	
+	//set number of samples and error
 	node -> SetNMisClassifiedObjects( indivDetailedErrTab[ errTabIndex ] );
 	node -> SetNTrainObjects( indivDetailedErrTab[ errTabIndex ] + indivDetailedErrTab[ errTabIndex + 1 ] );
 	node -> m_TrainObjs.m_uSize = node -> GetNTrainObjects();
 
+	//set class distribution
 	int best = 0;
 	for( int i = 0; i < nClasses; i++ ){
 		node -> SetNClassObjects( i, indivDetailedClassDistTab[ classTabIndex + i ] );
@@ -1427,6 +1468,7 @@ int CCudaWorker::FillDTreeByExternalResults( CDTreeNode *node, unsigned int *ind
 	
 	node -> m_TrainObjs.ClearObjects4Dipoles();
 
+	//set dipole objects
 	for( int i = 0; i < nClasses; i++ )
 		for( int j = 0; j < N_DIPOL_OBJECTS; j++ ){
 			if( indivDipolTab[ dipolTabIndex + N_DIPOL_OBJECTS * i + j ] > 0 )
@@ -1483,16 +1525,18 @@ int CCudaWorker::FillDTreeByExternalResults( CDTreeNode *node, unsigned int *ind
 	return index;
 }
 
-//fill decision tree by the results obtained by an external device, e.g. GPU: errors, class distribution, dipol objects
+//fill decision tree by the results obtained by an external device, e.g. GPU: errors, class distribution, dipol objects (FULL_BINARY_TREE_REP version)
 int CCudaWorker::FillDTreeByExternalResults_FULL_BINARY_TREE_REP( CDTreeNode *node, unsigned int *indivDetailedErrTab, unsigned int *indivDetailedClassDistTab, unsigned int* indivDipolTab, unsigned int index, const IDataSet *pDS ){
 	unsigned int errTabIndex = index * N_INFO_CORR_ERR;
 	unsigned int classTabIndex = index * nClasses;
 	unsigned int dipolTabIndex = index * nClasses * N_DIPOL_OBJECTS;
 
+	//set number of samples and error
 	node -> SetNMisClassifiedObjects( indivDetailedErrTab[ errTabIndex ] );
 	node -> SetNTrainObjects( indivDetailedErrTab[ errTabIndex ] + indivDetailedErrTab[ errTabIndex + 1 ] );
 	node -> m_TrainObjs.m_uSize = node -> GetNTrainObjects();
 
+	//set class distribution
 	int best = 0;
 	for( int i = 0; i < nClasses; i++ ){
 		node -> SetNClassObjects( i, indivDetailedClassDistTab[ classTabIndex + i ] );
@@ -1503,6 +1547,7 @@ int CCudaWorker::FillDTreeByExternalResults_FULL_BINARY_TREE_REP( CDTreeNode *no
 
 	node -> m_TrainObjs.ClearObjects4Dipoles();
 
+	//set dipole objects
 	for( int i = 0; i < nClasses; i++ )
 		for( int j = 0; j < N_DIPOL_OBJECTS; j++ ){
 			if( indivDipolTab[ dipolTabIndex + N_DIPOL_OBJECTS * i + j ] > 0 )
@@ -1518,6 +1563,8 @@ int CCudaWorker::FillDTreeByExternalResults_FULL_BINARY_TREE_REP( CDTreeNode *no
 	if( node -> m_vBranch.size() > 0 )	FillDTreeByExternalResults_FULL_BINARY_TREE_REP( node -> m_vBranch[ 0 ], indivDetailedErrTab, indivDetailedClassDistTab, indivDipolTab, index * 2 + 1, pDS );
 	if( node -> m_vBranch.size() > 1 )	FillDTreeByExternalResults_FULL_BINARY_TREE_REP( node -> m_vBranch[ 1 ], indivDetailedErrTab, indivDetailedClassDistTab, indivDipolTab, index * 2 + 2, pDS );
 	
+
+	//search objects for cutted pure and notcutted mixed dipols
 	if( node -> m_vBranch.size() > 0 ){						//not in leaf		
 		pair<CDataObject*, CDataObject*> p;
 		SearchObjects4NotCuttedMixedDipole( node -> m_vBranch[ 0 ], p );
@@ -1565,10 +1612,12 @@ int CCudaWorker::FillDTreeByExternalResultsChooser(CDTreeNode *root, unsigned in
 void CCudaWorker::PruneNodeBeforeCUDA(CDTreeNode* node) {
 	if (node->m_bLeaf) return;
 	size_t nBranches = node->m_vBranch.size();
+	//propagate delete operation
 	for (size_t i = 0; i < nBranches; i++) {
 		PruneNodeBeforeCUDA(node->m_vBranch[i]);
 		delete node->m_vBranch[i];
 	}
+	//clean data branches
 	node->m_vBranch.clear();
 	delete node->m_pITest;
 	node->m_pITest = NULL;
@@ -1578,6 +1627,7 @@ void CCudaWorker::PruneNodeBeforeCUDA(CDTreeNode* node) {
 #if FULL_BINARY_TREE_REP
 void CCudaWorker::SetInitTreeDepthLimit( const IDataSet *dataset, eModelType modelType ){
 	
+	//share memory is limited and thus we 
 	#if CUDA_SHARED_MEM_POST_CALC
 	this -> nClasses = dataset -> GetClassCount();	
 	int depthLimit = 0;
@@ -1638,12 +1688,15 @@ bool CCudaWorker::DetermineCompactOrFullTreeRep(CDTreeNode* root) {
 	return 1;													//compact
 	#else
 	
+	//for small trees
 	//if (root->GetDepth() <= 2) return 0;						//full (complete)
 
+	//for large trees or over the chosen limit
 	//if (root->GetDepth() > MAX_MEMORY_TREE_DEPTH) return 1;		//compact
 
 	//printf("%f ? %f (%d %d)\n", root->GetNAllNodes() / ((double)pow(2.0, root->GetDepth()) - 1), adaptiveTreeRepSwitch,
 	//	                        root->GetNAllNodes(), root->GetDepth() );
+	//smart switching using a factor (adaptiveTreeRepSwitch)
 	if (root->GetNAllNodes() / ((double)pow(2.0, root->GetDepth())-1) > adaptiveTreeRepSwitch)
 		return 0;												//full (complete) 
 	else
@@ -1700,6 +1753,7 @@ __global__ void dev_CalcPopClassDistAndDipolAtLeafs_Pre_V2b( DS_REAL *datasetTab
 															 unsigned int *populationClassDistTab_ScatOverBlocks, unsigned int *populationDipolTab_ScatOverBlocks ){
 	int startObjectIndex = 0;
 	
+	//range of samples to process
 	if( blockIdx.x < nObjects % gridDim.x )
 		startObjectIndex = blockIdx.x * ( nObjects / gridDim.x ) + blockIdx.x;		
 	else
@@ -1795,6 +1849,7 @@ __global__ void dev_CalcPopClassDistAndDipolAtLeafs_Pre_V2b( DS_REAL *datasetTab
 															 unsigned int *populationClassDistTab_ScatOverBlocks, unsigned int *populationDipolTab_ScatOverBlocks ){
 	int startObjectIndex = 0;
 	
+	//range of samples to process
 	if( blockIdx.x < nObjects % gridDim.x )
 		startObjectIndex = blockIdx.x * ( nObjects / gridDim.x ) + blockIdx.x;		
 	else
@@ -1881,6 +1936,7 @@ __global__ void dev_CalcPopClassDistAndDipolAtLeafs_Pre_V2b( DS_REAL *datasetTab
 						treeNodeIndex = individualRightNodePosTab[ treeNodeIndex ];
 			}
 
+			//move to the next object in dataset
 			index++;		
 			objectTab += nAttrs;
 		}		
@@ -1891,6 +1947,7 @@ __global__ void dev_CalcPopClassDistAndDipolAtLeafs_Pre_FULL_BINARY_TREE_REP_V2b
 															 unsigned int *populationClassDistTab_ScatOverBlocks, unsigned int *populationDipolTab_ScatOverBlocks ){
 	int startObjectIndex = 0;
 	
+	//range of samples to process
 	if( blockIdx.x < nObjects % gridDim.x )
 		startObjectIndex = blockIdx.x * ( nObjects / gridDim.x ) + blockIdx.x;		
 	else
@@ -1986,6 +2043,7 @@ __global__ void dev_CalcPopPartClassDistAndDipolAtLeafs_Pre_V2b( DS_REAL *datase
 																 unsigned int *populationClassDistTab_ScatOverBlocks, unsigned int *populationDipolTab_ScatOverBlocks ){
 	int startObjectIndex = 0;
 	
+	//range of samples to process
 	if( blockIdx.x < nObjects % gridDim.x )
 		startObjectIndex = blockIdx.x * ( nObjects / gridDim.x ) + blockIdx.x;		
 	else
@@ -2072,6 +2130,7 @@ __global__ void dev_CalcPopPartClassDistAndDipolAtLeafs_Pre_V2b( DS_REAL *datase
 						treeNodeIndex = 2 * treeNodeIndex + 2;
 			}
 
+			//move to the next object in dataset
 			index++;		
 			objectTab += nAttrs;
 		}		
@@ -2084,6 +2143,7 @@ __global__ void dev_CalcPopPartClassDistAndDipolAtLeafs_Pre_V2b( DS_REAL *datase
 																 unsigned int *populationClassDistTab_ScatOverBlocks, unsigned int *populationDipolTab_ScatOverBlocks ){
 	int startObjectIndex = 0;
 	
+	//range of samples to process
 	if( blockIdx.x < nObjects % gridDim.x )
 		startObjectIndex = blockIdx.x * ( nObjects / gridDim.x ) + blockIdx.x;		
 	else
@@ -2181,6 +2241,7 @@ __global__ void dev_CalcPopPartClassDistAndDipolAtLeafs_Pre_FULL_BINARY_TREE_REP
 																 unsigned int *populationClassDistTab_ScatOverBlocks, unsigned int *populationDipolTab_ScatOverBlocks ){
 	int startObjectIndex = 0;
 	
+	//range of samples to process
 	if( blockIdx.x < nObjects % gridDim.x )
 		startObjectIndex = blockIdx.x * ( nObjects / gridDim.x ) + blockIdx.x;		
 	else
@@ -2293,6 +2354,7 @@ __global__ void dev_CalcPopDetailedErrAndClassDistAndDipol_Post_V2b_2Classes( in
 	unsigned int* individualClassDistTab_Local = populationClassDistTab_ScatOverBlocks + threadIdx.x * populationTabSize * nClasses + individualPosInTab[ individualIndex ] * nClasses;
 	unsigned int* individualDipolTab_Local = populationDipolTab_ScatOverBlocks + threadIdx.x * populationTabSize * nClasses * (N_DIPOL_OBJECTS + 1)  + individualPosInTab[ individualIndex ] * nClasses * (N_DIPOL_OBJECTS + 1);
 	
+	//shared memory
 	__shared__ unsigned int individualClassDistTab_Sum[ MAX_N_INFO_TREE_NODES ];
 	__shared__ unsigned int individualDipolTab_Random[ MAX_N_INFO_TREE_NODES ];
 
@@ -2307,10 +2369,11 @@ __global__ void dev_CalcPopDetailedErrAndClassDistAndDipol_Post_V2b_2Classes( in
 	}
 	__syncthreads();
 	
-
+	//reduction class distribution
 	for( int i = 0; i < individualTabSize * nClasses; i++ )
 		atomicAdd( &( individualClassDistTab_Sum[ i ] ), individualClassDistTab_Local[ i ] );
 
+	//reduction dipoles
 	for( int i = 0; i < individualTabSize * nClasses * N_DIPOL_OBJECTS; i++ )
 		if( individualDipolTab_Local[ i + i / N_DIPOL_OBJECTS ] != 0 )
 			atomicCAS( &( individualDipolTab_Random[ i ] ), false, individualDipolTab_Local[ i + i / N_DIPOL_OBJECTS ] );		
@@ -2362,7 +2425,7 @@ __global__ void dev_CalcPopDetailedErrAndClassDistAndDipol_Post_V2b_2Classes( in
 				}			
 		}		
 
-
+		//propagate dipoles
 		for( int treeNodeIndex = individualTabSize - 1; treeNodeIndex > 0; treeNodeIndex-- ){			
 				if( treeNodeIndex % 2 == 0 ){
 					if( individualDipolTab_Random[ treeNodeIndex * 2 - 4 ] == 0 ) individualDipolTab_Random[ treeNodeIndex * 2 - 4 ] = individualDipolTab_Random[ treeNodeIndex * nClasses * N_DIPOL_OBJECTS     ];
@@ -2403,6 +2466,7 @@ __global__ void dev_CalcPopDetailedErrAndClassDistAndDipol_Post_V2b( int *indivi
 	unsigned int* individualClassDistTab_Local = populationClassDistTab_ScatOverBlocks + threadIdx.x * populationTabSize * nClasses + individualPosInTab[ individualIndex ] * nClasses;
 	unsigned int* individualDipolTab_Local = populationDipolTab_ScatOverBlocks + threadIdx.x * populationTabSize * nClasses * (N_DIPOL_OBJECTS + 1)  + individualPosInTab[ individualIndex ] * nClasses * (N_DIPOL_OBJECTS + 1);
 	
+	//if set use shared memory
 	#if CUDA_SHARED_MEM_POST_CALC
 	__shared__ unsigned int individualClassDistTab_Sum[ MAX_N_INFO_TREE_NODES ];
 	__shared__ unsigned int individualDipolTab_Random[ MAX_N_INFO_TREE_NODES ];
@@ -2478,6 +2542,7 @@ __global__ void dev_CalcPopDetailedErrAndClassDistAndDipol_Post_V2b( int *indivi
 			individualDetailedClassDistTab[ i ] = individualClassDistTab_Sum[ i ];
 		#endif
 
+		//propagate dipoles
 		for( int treeNodeIndex = individualTabSize - 1; treeNodeIndex > 0; treeNodeIndex-- ){			
 				if( treeNodeIndex % 2 == 0 )
 					for( int classIndex = 0; classIndex < nClasses; classIndex++ ){
@@ -2522,6 +2587,7 @@ __global__ void dev_CalcPopDetailedErrAndClassDistAndDipol_Post_V2b( int *indivi
 	unsigned int* individualClassDistTab_Local = populationClassDistTab_ScatOverBlocks + threadIdx.x * populationTabSize * nClasses + individualPosInTab[ individualIndex ] * nClasses;
 	unsigned int* individualDipolTab_Local = populationDipolTab_ScatOverBlocks + threadIdx.x * populationTabSize * nClasses * (N_DIPOL_OBJECTS + 1)  + individualPosInTab[ individualIndex ] * nClasses * (N_DIPOL_OBJECTS + 1);
 	
+	//if set use shared memory
 	#if CUDA_SHARED_MEM_POST_CALC
 	__shared__ unsigned int individualClassDistTab_Sum[ MAX_N_INFO_TREE_NODES ];
 	__shared__ unsigned int individualDipolTab_Random[ MAX_N_INFO_TREE_NODES ];
@@ -2587,6 +2653,7 @@ __global__ void dev_CalcPopDetailedErrAndClassDistAndDipol_Post_V2b( int *indivi
 			individualDetailedClassDistTab[ i ] = individualClassDistTab_Sum[ i ];
 		#endif
 				
+		//propagate dipoles
 		for( int treeNodeIndex = individualTabSize - 1; treeNodeIndex > 0; treeNodeIndex-- ){			
 			for( int classIndex = 0; classIndex < nClasses; classIndex++ )
 				for( int dipolIndex = 0; dipolIndex < N_DIPOL_OBJECTS; dipolIndex++ )
@@ -2612,6 +2679,7 @@ __global__ void dev_CalcPopDetailedErrAndClassDistAndDipol_Post_FULL_BINARY_TREE
 	unsigned int *individualDetailedClassDistTab = populationDetailedClassDistTab + individualPosInTab[ individualIndex ] * nClasses;
 	unsigned int *individualDipolTab = populationDipolTab + individualPosInTab[ individualIndex ] * nClasses * N_DIPOL_OBJECTS;
 
+	//the individual size in 1D table
 	if( individualIndex < gridDim.x - 1 )
 		individualTabSize = individualPosInTab[ individualIndex + 1 ] - individualPosInTab[ individualIndex ];
 	else
@@ -2620,6 +2688,7 @@ __global__ void dev_CalcPopDetailedErrAndClassDistAndDipol_Post_FULL_BINARY_TREE
 	unsigned int* individualClassDistTab_Local = populationClassDistTab_ScatOverBlocks + threadIdx.x * populationTabSize * nClasses + individualPosInTab[ individualIndex ] * nClasses;
 	unsigned int* individualDipolTab_Local = populationDipolTab_ScatOverBlocks + threadIdx.x * populationTabSize * nClasses * (N_DIPOL_OBJECTS + 1)  + individualPosInTab[ individualIndex ] * nClasses * (N_DIPOL_OBJECTS + 1);
 	
+	//if set use shared memory
 	#if CUDA_SHARED_MEM_POST_CALC
 	__shared__ unsigned int individualClassDistTab_Sum[ MAX_N_INFO_TREE_NODES ];
 	__shared__ unsigned int individualDipolTab_Random[ MAX_N_INFO_TREE_NODES ];
@@ -2695,6 +2764,7 @@ __global__ void dev_CalcPopDetailedErrAndClassDistAndDipol_Post_FULL_BINARY_TREE
 			individualDetailedClassDistTab[ i ] = individualClassDistTab_Sum[ i ];
 		#endif
 
+		//propagate dipoles
 		for( int treeNodeIndex = individualTabSize - 1; treeNodeIndex > 0; treeNodeIndex-- ){			
 				if( treeNodeIndex % 2 == 0 )
 					for( int classIndex = 0; classIndex < nClasses; classIndex++ ){

@@ -14,6 +14,7 @@ enum eAttrType : char { NOMINAL=0, CONTINUOUS=1};
 // to control the memory complexity
 typedef float Real;
 
+//the attribute value, nominal or real
 class IAttrValue
 {
 public:
