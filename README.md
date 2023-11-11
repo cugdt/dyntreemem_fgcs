@@ -112,6 +112,7 @@ https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.htm
 **3. Build the software**
 ##### Linux
 ```
+cd src
 make clean
 make
 ```
@@ -123,7 +124,7 @@ make
   * Delete file "kernel.cu" from the project<BR/>
     Right-click the project name in Solution Explorer, select the file and click 'Remove'
   * Import the source code from the repository to the project<BR/>
-    Right-click the project name in Solution Explorer, select 'Add -> Existing Item...', choose all files and click 'Add'.
+    Right-click the project name in Solution Explorer, select 'Add -> Existing Item...', choose all source files from src folder (*.h, *.cpp, *.cuh, *.cu)  and click 'Add'.
   *  If needed, choose the correct CUDA version:<BR/>
      Right-click the project name in Solution Explorer, choose 'Build Dependencies' then 'Build Customizations...'
 - To compile this program, click on 'Build -> Build Solution'
