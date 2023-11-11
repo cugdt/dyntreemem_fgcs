@@ -3,6 +3,7 @@
 #include <string>
 #include <deque>
 
+//type of test: real, nominal, etc.
 class ITest
 {
 public:

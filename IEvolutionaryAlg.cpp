@@ -3,6 +3,7 @@
 #if !TEST
 #include <utility>
 
+//run the basic evolution
 void IEvolutionaryAlg::Run()
 {
 	Dataset dataset = ReadDataset(path);
@@ -14,6 +15,7 @@ void IEvolutionaryAlg::Run()
 	EvaluateFitness(population);		//ApplyTestChangeChooser for all individuals
 	Selection(population);
 
+	//evolutionary loop
 	do{		
 		CrossoverOperator(population);
 		MutationOperator(population);
@@ -26,6 +28,7 @@ void IEvolutionaryAlg::CrossoverOperator(Population population)
 {
 	vector<pair<Individual, Individual>> pairsVec = CreatePairs(population);
 
+	//for all pairs of DTs try to apply crossover operator
 	for (auto iter : pairsVec) {
 		if (Crossover(iter) {
 			ApplyTestChangeChooser(iter.first)
@@ -34,12 +37,14 @@ void IEvolutionaryAlg::CrossoverOperator(Population population)
 }
 
 void IEvolutionaryAlg::MutationOperator(Population population) {
+	//for all DTs try to apply mutation operator
 	for (auto iter : population.GetIndiv()) {
 		if (Mutation(iter))
 			ApplyTestChangeChooser(iter)
 }
 
 void IEvolutionaryAlg::ApplyTestChangeChooser(Individual individual) {
+	//run CUDA or C++ to update a DT
 	#if CUDA_EA_ON
 		ApplyTestChangeByCUDA(individual);
 	#else	
@@ -47,6 +52,7 @@ void IEvolutionaryAlg::ApplyTestChangeChooser(Individual individual) {
 	#endif
 }
 
+//prepare and go to function where CUDA is used
 void IEvolutionaryAlg::ApplyTestChangeByCUDA(Individual individual) {
 	unsigned int* indivDetailedClassDistTab = NULL;
 	unsigned int* indivDipolTab = NULL;

@@ -11,7 +11,6 @@ class CDTreeNodeSim
 public:
 	
 	// number of samples from the training datasets in the node (leaf)
-	// Liczba przykladow ze zbioru uczacego w wezle (lisciu)
 	unsigned int m_uTrain;
 
 	//numer of misclassified samples - only for classification trees

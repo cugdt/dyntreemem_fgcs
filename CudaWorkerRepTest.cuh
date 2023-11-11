@@ -47,24 +47,24 @@
 
 class CCudaWorkerRepTest {
 protected:
-	int nObjects;
-	int nAttrs;
-	int nClasses;
-	int nThreads;
-	int nBlocks;
+	int nObjects;				//number of objects
+	int nAttrs;					//number of attributes
+	int nClasses;				//number of classes
+	int nThreads;				//number of threads
+	int nBlocks;				//number of blocks
 		
 #if !FULL_BINARY_TREE_REP	
 	bool bCompactOrFullTreeRep;
 public:
-	float adaptiveTreeRepSwitch;	
+	float adaptiveTreeRepSwitch;	//switching factor
 #endif
 
 private:
-	DS_REAL *dev_datasetTab;
-	unsigned int *dev_classTab;
-	int *dev_populationAttrNumTab;	
-	float *dev_populationValueTab;	
-	int *dev_individualPosInTab;
+	DS_REAL *dev_datasetTab;			//dataset at device
+	unsigned int *dev_classTab;			//classes at device
+	int *dev_populationAttrNumTab;		//attr at device
+	float *dev_populationValueTab;		//threshold at device
+	int *dev_individualPosInTab;		
 
 	#if !FULL_BINARY_TREE_REP //tree structure - position of left/right children or parent node
 	//MEMORY OPTIMIZATION
@@ -91,30 +91,31 @@ private:
 	 #endif
 	#endif
 
-	CCudaTimeStats timeStats;
+	CCudaTimeStats timeStats;			//debug stats
 
 public:	
 	int GetCurrMaxTreeTabSize();
-	void GenerateDT(CDTreeNodeSim* node, int depth);
+	void GenerateDT(CDTreeNodeSim* node, int depth);		//generate test DT
 	void DeleteDT(CDTreeNodeSim* node);
 	#if CUDA_MALLOC_OPTIM_1	
 	void AllocateMemoryPopAndResultsAtGPU(int nIndividuals, int maxTreeTabSize);
 	void DeleteMemoryPopAndResultsAtGPU();
 	#endif
-	void SendDatasetToGPU();
+	void SendDatasetToGPU();						//send and alloc dataset at device
 	void DeleteDatasetAtGPU();
-	void InitSimulation();
+	void InitSimulation();							//set default parameters and alloc memory
 	void EndSimulation();
-	void PrepareIndivBeforeCUDA(CDTreeNodeSim* root);
+	void PrepareIndivBeforeCUDA(CDTreeNodeSim* root);	//if needed prune tree
 	void PruneNodeBeforeCUDA(CDTreeNodeSim* node);
 	#if FULL_BINARY_TREE_REP
 	void SetInitTreeDepthLimit();
 	void PruneIndivBeforeCUDA(CDTreeNodeSim* node, int treeLevel );
 	#else
-	bool DetermineCompactOrFullTreeRep(CDTreeNodeSim* node);
+	bool DetermineCompactOrFullTreeRep(CDTreeNodeSim* node);	//decide which representation to choose
 	void PruneIndivBeforeCUDA_FULL_BINARY_TREE_REP(CDTreeNodeSim* node, int treeLevel);
 	#endif
 	void Run();
+	//move tree to table - version for different in-memory represtations
 	#if FULL_BINARY_TREE_REP
 	void CopyBinaryTreeToTable(const CDTreeNodeSim* node, int* attrTab, float* valueTab, unsigned int index);
 	#else
@@ -122,5 +123,6 @@ public:
 	void CopyBinaryTreeToTable_FULL_BINARY_TREE_REP(const CDTreeNodeSim* node, int* attrTab, float* valueTab, unsigned int index);
 	#endif
 	int GetDTArrayRepTabSize( CDTreeNodeSim* root );
+	//update tree after changes (mutation, crossover, ...)
 	unsigned int* CalcIndivDetailedErrAndClassDistAndDipol_V2b(CDTreeNodeSim* root, unsigned int** populationDetailedClassDistTab, unsigned int** populationDipolTab);
 };

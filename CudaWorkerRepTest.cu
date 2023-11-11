@@ -10,15 +10,18 @@
 //#include "assert.h"
 
 #if FULL_BINARY_TREE_REP
+//kernel pre complete
 __global__ void dev_CalcPopClassDistAndDipolAtLeafs_Pre_V2b( DS_REAL *datasetTab, unsigned int *classTab, int nObjects, int nAttrs, int nIndividuals,
 															 int *populationAttrNumTab, float *populationValueTab,  int *individualPosInTab, int populationTabSize, int nClasses,
 															 unsigned int *populationClassDistTab_ScatOverBlocks, unsigned int *populationDipolTab_ScatOverBlocks );
 #else
+//kernel pre compact
 __global__ void dev_CalcPopClassDistAndDipolAtLeafs_Pre_V2b( DS_REAL *datasetTab, unsigned int *classTab, int nObjects, int nAttrs, int nIndividuals,
 															 int *populationAttrNumTab, float *populationValueTab,  int *individualPosInTab, int populationTabSize, int nClasses,
 															 int *populationLeftNodePosTab, int *populationRightNodePosTab, int *populationParentNodePosTab,
 															 unsigned int *populationClassDistTab_ScatOverBlocks, unsigned int *populationDipolTab_ScatOverBlocks );
 #if ADDAPTIVE_TREE_REP
+//kernel pre adaptive
 __global__ void dev_CalcPopClassDistAndDipolAtLeafs_Pre_FULL_BINARY_TREE_REP_V2b( DS_REAL *datasetTab, unsigned int *classTab, int nObjects, int nAttrs, int nIndividuals,
 															 int *populationAttrNumTab, float *populationValueTab,  int *individualPosInTab, int populationTabSize, int nClasses,
 															 unsigned int *populationClassDistTab_ScatOverBlocks, unsigned int *populationDipolTab_ScatOverBlocks );
@@ -26,18 +29,21 @@ __global__ void dev_CalcPopClassDistAndDipolAtLeafs_Pre_FULL_BINARY_TREE_REP_V2b
 #endif
 
 #if FULL_BINARY_TREE_REP
+//kernel post for complete - 2 class version
 __global__ void dev_CalcPopDetailedErrAndClassDistAndDipol_Post_V2b_2Classes( int *individualPosInTab, int populationTabSize, int nClasses,
 															 		    unsigned int *populationClassDistTab_ScatOverBlocks, unsigned int *populationDipolTab_ScatOverBlocks,
 																	    unsigned int *populationDetailedErrTab, unsigned int *populationDetailedClassDistTab, unsigned int *populationDipolTab );
-
+//kernel post for complete
 __global__ void dev_CalcPopDetailedErrAndClassDistAndDipol_Post_V2b( int *individualPosInTab, int populationTabSize, int nClasses,
 															 		 unsigned int *populationClassDistTab_ScatOverBlocks, unsigned int *populationDipolTab_ScatOverBlocks,
 																	 unsigned int *populationDetailedErrTab, unsigned int *populationDetailedClassDistTab, unsigned int *populationDipolTab );
 #else
+//kernel post for compact
 __global__ void dev_CalcPopDetailedErrAndClassDistAndDipol_Post_V2b( int *individualPosInTab, int populationTabSize, int nClasses, int *populationParentNodePosTab,
 															 		 unsigned int *populationClassDistTab_ScatOverBlocks, unsigned int *populationDipolTab_ScatOverBlocks,
 																	 unsigned int *populationDetailedErrTab, unsigned int *populationDetailedClassDistTab, unsigned int *populationDipolTab );
 #if ADDAPTIVE_TREE_REP
+//kernel post for adaptive
 __global__ void dev_CalcPopDetailedErrAndClassDistAndDipol_Post_FULL_BINARY_TREE_REP_V2b( int *individualPosInTab, int populationTabSize, int nClasses,
 															 		 unsigned int *populationClassDistTab_ScatOverBlocks, unsigned int *populationDipolTab_ScatOverBlocks,
 																	 unsigned int *populationDetailedErrTab, unsigned int *populationDetailedClassDistTab, unsigned int *populationDipolTab );
@@ -60,6 +66,7 @@ int CCudaWorkerRepTest::GetCurrMaxTreeTabSize(){
 	#endif
 }
 
+//generate the random tree
 void CCudaWorkerRepTest::GenerateDT(CDTreeNodeSim* node, int depth) {
 	if (depth <= 0) {
 		node->m_bLeaf = true;
@@ -83,6 +90,7 @@ void CCudaWorkerRepTest::GenerateDT(CDTreeNodeSim* node, int depth) {
 		GenerateDT(node->m_vBranch[i], depth - 1);
 }
 
+//delete the random generated DT
 void CCudaWorkerRepTest::DeleteDT(CDTreeNodeSim* node) {
 	size_t nOutcomes = node -> m_vBranch.size();
 	for (size_t i = 0; i < nOutcomes; i++)
@@ -92,6 +100,7 @@ void CCudaWorkerRepTest::DeleteDT(CDTreeNodeSim* node) {
 }
 
 #if CUDA_MALLOC_OPTIM_1
+//alloc one before the evolution - for DT structure and for results
 void CCudaWorkerRepTest::AllocateMemoryPopAndResultsAtGPU(int nIndividuals, int maxTreeTabSize){
 
 	//timeStats->WholeTimeBegin();						//time stats
@@ -179,6 +188,7 @@ void CCudaWorkerRepTest::DeleteMemoryPopAndResultsAtGPU(){
 }
 #endif
 
+//sending dataset to device
 void CCudaWorkerRepTest::SendDatasetToGPU(){
 	//timeStats -> WholeTimeBegin();						//time stats
 	//timeStats -> WholeDatasetTransportTimeBegin();
@@ -259,6 +269,7 @@ void CCudaWorkerRepTest::DeleteDatasetAtGPU(){
 	if (dev_classTab != NULL) cudaFree(dev_classTab);
 }
 
+//default settings
 void CCudaWorkerRepTest::InitSimulation() {
 	char datasetPath[256] = "sdd.data";
 
@@ -283,6 +294,7 @@ void CCudaWorkerRepTest::EndSimulation() {
 	#endif
 }
 
+//if needed prune tree
 void CCudaWorkerRepTest::PrepareIndivBeforeCUDA(CDTreeNodeSim* root ){
 	//printf("PrepareIndivBeforeCUDA - begin\n");
 	#if FULL_BINARY_TREE_REP		
@@ -425,6 +437,7 @@ void CCudaWorkerRepTest::PruneIndivBeforeCUDA(CDTreeNodeSim* node, int treeLevel
 	}			
 }
 #else
+//which population to choose
 bool CCudaWorkerRepTest::DetermineCompactOrFullTreeRep(CDTreeNodeSim* root) {
 	#if !ADDAPTIVE_TREE_REP
 	return 1;													//compact
@@ -583,6 +596,7 @@ int CCudaWorkerRepTest::GetDTArrayRepTabSize( CDTreeNodeSim* root ){
 	return size;
 }
 
+//classification trees
 unsigned int* CCudaWorkerRepTest::CalcIndivDetailedErrAndClassDistAndDipol_V2b(CDTreeNodeSim* root, unsigned int** populationDetailedClassDistTab, unsigned int** populationDipolTab) {
 	cudaError_t cudaStatus;
 

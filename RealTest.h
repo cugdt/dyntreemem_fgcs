@@ -2,6 +2,8 @@
 #include "ITest.h"
 #include "AttrValue.h"
 
+
+//real test details
 class CRealTest : public ITest
 {
 public:

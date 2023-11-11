@@ -8,14 +8,14 @@ public:
 	void Run();
 	void CrossoverOperator(Population population);
 	void MutationOperator(Population population);
-	void ApplyTestChangeChooser(Individual individual);
-	void ApplyTestChangeByCUDA(Individual individual);
+	void ApplyTestChangeChooser(Individual individual);		//choose CUDA or seq version
+	void ApplyTestChangeByCUDA(Individual individual);		//call CUDA
 
 	Population CreateInitialPopulation();
-	void EvaluateFitness(Population population);
-	void Selection(Population population);
-	void PostEAOperations(Population population);
-	Pairs CreatePairs(Population population);
+	void EvaluateFitness(Population population);			//update fitness
+	void Selection(Population population);					//selection operator
+	void PostEAOperations(Population population);			//prune etc.
+	Pairs CreatePairs(Population population);				//create pairs of DTs for the crossover
 
 	#if CUDA_EA_ON
 	CCudaWorker worker;	

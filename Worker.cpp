@@ -7,6 +7,7 @@
 #include <fstream>
 #include<iomanip>
 
+//set default options
 CWorker::CWorker(){
 	ClearDebugInfo();	//DEBUG CT//
 	nThreads = 256;		//can change later based on input file
@@ -17,6 +18,7 @@ CWorker::CWorker(){
 	#endif
 }
 
+//set again dipole objects
 void CWorker::ReFillTrainObjsInBranches(CDTreeNode *node, vector<CTrainObjsInNode>& vqDiv){
 	size_t nOutcomes = vqDiv.size();
 
@@ -41,6 +43,7 @@ void CWorker::ReFillTrainObjsInBranches(CDTreeNode *node, vector<CTrainObjsInNod
 	}
 }
 
+//move the tree from C++ pointers to 1D table, versions for different in-memory DT rep
 #if FULL_BINARY_TREE_REP
 void CWorker::CopyBinaryTreeToTable( const CDTreeNode* node, int* attrTab, float* valueTab, unsigned int index ){
 	if( node -> m_bLeaf ){
@@ -95,6 +98,7 @@ void CWorker::CopyBinaryTreeToTable_FULL_BINARY_TREE_REP( const CDTreeNode* node
 }
 #endif
 
+//clean memory of DTs
 void CWorker::CleanBinaryTreeInTable( const CDTreeNode* node, int* attrTab, float* valueTab, unsigned int index ){
 	attrTab[index] = -2;
 	valueTab[index] = 0.0;
@@ -132,7 +136,7 @@ int CWorker::CopyBinaryTreePartToTable( const CDTreeNode* startNode, CDTreeNode*
 		return false;
 }
 
-
+//clean info after the iteration of evolutionary loop
 void CWorker::ClearDebugInfo_Iter(){
 
 	#if DEBUG
@@ -210,6 +214,7 @@ void CWorker::ClearDebugInfo(){
 	#endif
 }
 
+//write debug info, by default is not called - call after each iteration of the evolution
 void CWorker::WriteDebugInfo_Iter( int datasetSize ){
 	//DEBUG MT//std::cout << m_uMaxIterations - n + 1 << " loop mean time: " << (double)loopTime / (double)(m_uMaxIterations - n + 1) << " (last loop time:" << stop - start << "\t\tupdated trees:" << nUpdatedTrees / (double)(m_uMaxIterations - n + 1) << "(" << nUpdatedTrees << ":" << nUpdatedTreesIter << ")" << "\t\tupdated full trees:" << nUpdatedFullTrees / (double)(m_uMaxIterations - n + 1) << "(" << nUpdatedFullTrees << ":" << nUpdatedFullTreesIter << ")" << endl;//DEBUG MT//
 	//DEBUG MT//std::cout << "avg tree size:" << AvgTreeSize(m_dqPopulation) << endl;//DEBUG MT//
@@ -292,6 +297,7 @@ void CWorker::WriteDebugInfo_Iter( int datasetSize ){
 	#endif	
 }
 
+//debug info - write after each Run
 void CWorker::WriteDebugInfo_Run( int datasetSize, int incRuns, int incIters ){
 	#if DEBUG_COMPACT_TREE
 	nRuns  += incRuns;
